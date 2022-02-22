@@ -21,6 +21,11 @@ class Engine():
             self.exhaust_area = parameters["exhaust_area"]
             self.engine_on = True
             
+            self.exhaust_velocity = 0
+            self.flow_volume = 0
+            self.mass_flow = 0
+            self.thrust = 0
+            
         elif engine_type=="noctua":
             self.awesomeness = 100
             
@@ -43,7 +48,6 @@ class Engine():
                     self.mass_flow = 0
                     self.thrust = 0
                     self.engine_on = False
-                    print("Engine out, Pressure lost")
             else:
                 self.exhaust_velocity = 0
                 self.flow_volume = 0
@@ -64,7 +68,6 @@ class Engine():
                 if water.mass <= 0:
                     self.engine_on = False
                     water.mass = 0
-                    print("Engine out, Water empty")
                 
                 else:
                     if air.pressure > self.max_pressure:

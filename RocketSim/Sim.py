@@ -16,13 +16,13 @@ class PhysicsEngine():
     def EquationsOfMotion(x, rocket, atmosphere, time):
         '''Derives equations of motion and returns rates of change of state-vector'''
         
+        #What is this doing?
         rocket.altitude = x[0]
         rocket.velocity = x[1]
         
         rocket.engine.calculate_thrust(rocket, atmosphere)
         Models.drag(rocket, atmosphere, time, False)
         gravity_force = -rocket.mass()*9.80665
-        # Parachute_Drag =
         force = rocket.engine.thrust + rocket.drag + gravity_force
         rocket.acceleration = force/rocket.mass()
         
@@ -33,9 +33,9 @@ class PhysicsEngine():
     #%% Solver
     @staticmethod
     def Solve(x  ,rocket, atmosphere, time, method, timestep):
-        #Only supports Euler_exp method currently
+        #Supports all methods, but Euler_exp is fastest and therefore default
         dt = timestep
-        # x = np.array([rocket.altitude, rocket.velocity])
+        #x = np.array([rocket.altitude, rocket.velocity])
         
         
         if method == 'Euler_exp':
@@ -176,6 +176,21 @@ class PhysicsEngine():
         rocket.mass_propellant = rocket.mass_propellant - (dt*rocket.massflow_propellant)
         if rocket.mass_propellant < 0:
             rocket.mass_propellant = 0
+    
+    #%% new Solver
+    @staticmethod
+    def Step(rocket, atmosphere, time, timestep):
+        rocket.engine.calculate_thrust(rocket, atmosphere)
+        Models.drag(rocket, atmosphere, time, False)
+        gravity_force = -rocket.mass()*9.80665
+        force = rocket.engine.thrust + rocket.drag + gravity_force
+        
+        rocket.acceleration = force/rocket.mass()
+        rocket.velocity += rocket.acceleration * timestep
+        rocket.altitude += rocket.velocity * timestep
+        
+        rocket.engine.update_properties(rocket, atmosphere, timestep)
+    
     
     #%% Save properties
     # @staticmethod

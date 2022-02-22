@@ -158,119 +158,98 @@ t_start = 0
 #
 
 rocket = athena_02
-# while t < t_end:
-solve_adaptive = False
-h_ini = 1/10000
-h = h_ini
-#ini save
-t = t_start
 
-# Create save data
-alt = []
-alt.append(rocket.altitude)
-vel = []
-vel.append(rocket.velocity)
-acc = []
-acc.append(rocket.acceleration)
-dbg = []
-dbg.append(rocket.engine.thrust)
-water_mass = []
-water_mass.append(rocket.propellants[0].mass)
-drag = []
-drag.append(rocket.drag)
-gas_mass = []
-gas_mass.append(rocket.propellants[1].mass)
-gas_sum = 0
-time = []
-time.append(t)
-timestep = []
-timestep.append(h)
-error = []
-error.append(0)
+logging = True
+
+solve_adaptive = False
+timestep = 1/10000
+#ini save
+time = t_start
+
+#Logging setup
+if logging:
+    log = []
+    log.append([0, rocket.altitude, rocket.velocity, rocket.acceleration, rocket.mass(), rocket.drag, rocket.engine.thrust, rocket.engine.exhaust_velocity, rocket.engine.mass_flow])
+
 # Start of Simulation
-x = np.array([rocket.altitude, rocket.velocity])
 # start timer
 start = timer.time()
 
-while rocket.altitude >= 0 and time[-1] < 60:
+while rocket.altitude >= 0 and time < 60:
     
     if solve_adaptive == True:
-        
+        #Currently broken
         # solve
-        x_new,h_next,h_used,err = PhysicsEngine.Solve_adaptive(x, rocket, atmosphere, t, h, 'RKDP')
+        #x_new,h_next,h_used,err = PhysicsEngine.Solve_adaptive(x, rocket, atmosphere, time, h, 'RKDP')
 
         
         # update
-        x = x_new
-        t = t+h_used
-        h = h_next
+        #x = x_new
+        #time += h_used
+        #h = h_next
         
         # print(t)
         
         # save
-        time.append(t)
-        timestep.append(h_used)
-        alt.append(rocket.altitude)
-        vel.append(rocket.velocity)
-        acc.append(rocket.acceleration)
-        dbg.append(rocket.engine.thrust)
+        break
         
-        water_mass.append(rocket.propellants[0].mass)
-        drag.append(rocket.drag)
-        gas_mass.append(rocket.propellants[1].mass)
-        
-        error.append(err)
     
     else:
-        x_new = PhysicsEngine.Solve(x, rocket, atmosphere, t, 'Euler_exp',h_ini)
-        
+        #x_new = PhysicsEngine.Solve(x, rocket, atmosphere, t, 'Euler_exp',h_ini)
+        PhysicsEngine.Step(rocket, atmosphere, time, timestep)
         # update
-        t = t + h_ini
-        x = x_new
+        time = time + timestep
         
-        # print(t)
-        # save
-        time.append(t)
-        alt.append(rocket.altitude)
-        vel.append(rocket.velocity)
-        acc.append(rocket.acceleration)
-        dbg.append(rocket.engine.thrust)
-        water_mass.append(rocket.propellants[0].mass)
-        drag.append(rocket.drag)
-        gas_mass.append(rocket.propellants[1].mass)
+        if logging:
+            log.append([time, rocket.altitude, rocket.velocity, rocket.acceleration, rocket.mass(), rocket.drag, rocket.engine.thrust, rocket.engine.exhaust_velocity, rocket.engine.mass_flow])
+        
+            
+        
     
 end = timer.time()
-print('elapsed calculation time: ' + str(round(end-start,3)) + ' sec')
+print('elapsed calculation time: ' + str(round(end-start,3)) + ' s')
 #%% Results
 # -------------------------------
 # plot etc
-f, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(5, 1, sharex=True)
-ax1.plot(time,acc,label='acceleration',color='darkred')
-ax2.plot(time,vel,label='velocity',color='darkred')
-ax3.plot(time,alt,label='altitude',color='darkred')
-ax4.plot(time,dbg)
-ax5.plot(time,drag)
-ax1.set_ylabel('acc')
-ax2.set_ylabel('vel')
-ax3.set_ylabel('alt')
-ax4.set_ylabel('thrust')
-ax5.set_ylabel('drag')
-ax5.set_xlabel('time [s]')
-for ax in [ax1, ax2, ax3, ax4, ax5]:
-    ax.grid()
-plt.show()
-# plt.plot(time,alt)
-# plt.plot(time,vel)
-# plt.plot(time,acc)
-# # plt.plot(time,timestep)
-# # plt.plot(time,dbg)
-# plt.grid()
-# plt.show()
-print('Apogee: ' + str(round(max(alt),3)) + ' m')
-print('Max Vel: ' + str(round(max(vel),3)) + ' m/s')
-print('Max Acc: ' + str(round(max(acc),3)) + ' m/s2')
-#print("Remaining Water Mass: " + str(round(water_mass[-1],3)) + " kg")
-#print("Remaining Gas Mass: " + str(round(gas_mass[-1],3)) + " kg")
-print("Maximum Thrust:" + str(round(max(dbg),3)) + " N")
-print("Touchdown Velocity: " + str(round(abs(vel[-1]), 3)) + " m/s")
-#print('Max v_e: ' + str(max(dbg)) + ' m/s')
+if logging:
+    #plot 1
+    plot1, (ax1, ax2, ax3, ax4) = plt.subplots(4, 1, sharex=True)
+    
+    log = np.array(log)
+    ax1.plot(log[:,0],log[:,1], color="darkred")
+    ax2.plot(log[:,0],log[:,2], color="red")
+    ax3.plot(log[:,0],log[:,3], color="orange")
+    ax4.plot(log[:,0],log[:,5], color="blue")
+    
+    ax1.set_ylabel("alt")
+    ax2.set_ylabel("vel")
+    ax3.set_ylabel("acc")
+    ax4.set_ylabel("drag")
+    
+    plt.show()
+    
+    #plot 2
+    plot2, (ax5, ax6, ax7, ax8) = plt.subplots(4, 1, sharex=True)
+    
+    ax5.plot(log[:,0],log[:,4], color="yellow")
+    ax6.plot(log[:,0],log[:,6], color="limegreen")
+    ax7.plot(log[:,0],log[:,7], color="green")
+    ax8.plot(log[:,0],log[:,8], color="darkgreen")
+    
+    ax5.set_ylim([-0.1,5.1])
+    plt.xlim([-0.1,2.1])
+    
+    ax5.set_ylabel("mass")
+    ax6.set_ylabel("thr")
+    ax7.set_ylabel("v_e")
+    ax8.set_ylabel("massflow")
+    
+    
+    
+    plt.show()
+    
+    print("Apogee: " + str(round(max(log[:,1]),3)) + " m")
+    print("Max Vel: " + str(round(max(log[:,2]),3)) + " m")
+    print("Max Acc: " + str(round(max(log[:,3]),3)) + " m")
+    print("Touchdown Vel: " + str(round(abs(log[-1,2]),3)) + " m")
+    print(np.size(log, axis=0))
