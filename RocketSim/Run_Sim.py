@@ -142,7 +142,8 @@ athena_02_engine_properties = {
     "pressure_max": 20e5,
     "pressure_efficiency": 0.9,
     "exhaust_efficiency": 0.95,
-    "exhaust_area": 0.012 ** 2 * math.pi / 4
+    "pressure_rate": 0.5612,
+    "exhaust_area": 0.0065 ** 2 * math.pi / 4
 }
 athena_02_engine = Engine("paintball", athena_02_engine_properties)
 
@@ -237,7 +238,7 @@ if logging:
     ax8.plot(log[:,0],log[:,8], color="darkgreen")
     
     ax5.set_ylim([-0.1,5.1])
-    plt.xlim([-0.1,2.1])
+    plt.xlim([-0.1,3.1])
     
     ax5.set_ylabel("mass")
     ax6.set_ylabel("thr")
@@ -249,7 +250,7 @@ if logging:
     plt.show()
     
     print("Apogee: " + str(round(max(log[:,1]),3)) + " m")
-    print("Max Vel: " + str(round(max(log[:,2]),3)) + " m")
-    print("Max Acc: " + str(round(max(log[:,3]),3)) + " m")
+    print("Max Vel: " + str(round(max(log[:,2]),3)) + " m/s")
+    print("Max Acc: " + str(round(max(log[:,3]),3)) + " m/s²")
     print("Touchdown Vel: " + str(round(abs(log[-1,2]),3)) + " m")
     print("Max Thrust: " + str(round(max(log[:,6]),3)) + " N")

@@ -19,6 +19,7 @@ class Engine():
             self.pressure_efficiency = parameters["pressure_efficiency"]
             self.exhaust_efficiency = parameters["exhaust_efficiency"]
             self.exhaust_area = parameters["exhaust_area"]
+            self.pressure_rate = parameters["pressure_rate"]
             self.engine_on = True
             
             self.exhaust_velocity = 0
@@ -70,24 +71,36 @@ class Engine():
                     water.mass = 0
                 
                 else:
-                    if air.pressure > self.max_pressure:
-                        air_mass_flow = self.volume_flow * delta_time * PropsSI("D","T",air.temperature,"P",self.max_pressure, air.name)
-                        air.mass -= air_mass_flow
-                        air.density = air.mass / air.tank_volume
-                        air.pressure = PropsSI("P","T",air.temperature,"D",air.density, air.name)
-                    else:
-                        #air_mass_flow = self.volume_flow * delta_time * PropsSI("D","T",air.temperature,"P",air.pressure, air.name)
-                        total_air_volume = water.tank_volume + air.tank_volume - water.volume()
-                        total_air_density = air.initial_mass / total_air_volume
-                        total_air_pressure = PropsSI("P","T",air.temperature,"D",total_air_density,air.name)
-                        
-                        air.density = total_air_density
+                    if water.pressure <= self.max_pressure:
+                        pressure_difference = air.pressure - water.pressure
+                        pressure_difference_new = pressure_difference * self.pressure_rate ** delta_time
+                        air.pressure = pressure_difference_new + water.pressure
+                        air.density = PropsSI("D","T", air.temperature, "P", air.pressure, air.name)
                         air.mass = air.density * air.tank_volume
-                        air.pressure = total_air_pressure
                         
-                        water.pressure = air.pressure
+                    air_mass_water_tank = air.initial_mass - air.mass
+                    air_density_water_tank = air_mass_water_tank / (water.tank_volume - water.volume())
+                    water.pressure = PropsSI("P", "T", air.temperature, "D", air_density_water_tank, air.name)
                     
-                    water.density = PropsSI("D","T",water.temperature,"P",water.pressure, water.name)
+                    
+                    # if air.pressure > self.max_pressure:
+                    #     air_mass_flow = self.volume_flow * delta_time * PropsSI("D","T",air.temperature,"P",self.max_pressure, air.name)
+                    #     air.mass -= air_mass_flow
+                    #     air.density = air.mass / air.tank_volume
+                    #     air.pressure = PropsSI("P","T",air.temperature,"D",air.density, air.name)
+                    # else:
+                    #     #air_mass_flow = self.volume_flow * delta_time * PropsSI("D","T",air.temperature,"P",air.pressure, air.name)
+                    #     total_air_volume = water.tank_volume + air.tank_volume - water.volume()
+                    #     total_air_density = air.initial_mass / total_air_volume
+                    #     total_air_pressure = PropsSI("P","T",air.temperature,"D",total_air_density,air.name)
+                        
+                    #     air.density = total_air_density
+                    #     air.mass = air.density * air.tank_volume
+                    #     air.pressure = total_air_pressure
+                        
+                    #     water.pressure = air.pressure
+                    
+                    # water.density = PropsSI("D","T",water.temperature,"P",water.pressure, water.name)
                 
                 
             
