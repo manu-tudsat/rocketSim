@@ -142,7 +142,7 @@ athena_02_engine_properties = {
     "pressure_max": 20e5,
     "pressure_efficiency": 0.9,
     "exhaust_efficiency": 0.95,
-    "exhaust_area": 0.010 ** 2 * math.pi / 4
+    "exhaust_area": 0.012 ** 2 * math.pi / 4
 }
 athena_02_engine = Engine("paintball", athena_02_engine_properties)
 
@@ -252,4 +252,4 @@ if logging:
     print("Max Vel: " + str(round(max(log[:,2]),3)) + " m")
     print("Max Acc: " + str(round(max(log[:,3]),3)) + " m")
     print("Touchdown Vel: " + str(round(abs(log[-1,2]),3)) + " m")
-    print(np.size(log, axis=0))
+    print("Max Thrust: " + str(round(max(log[:,6]),3)) + " N")
