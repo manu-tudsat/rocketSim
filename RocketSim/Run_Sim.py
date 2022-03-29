@@ -118,7 +118,7 @@ athena_02_paintball = {
 athena_02_main_tank = {
     "tank_volume": 0.0031,
     "propellant_name": "Water",
-    "propellant_volume": 0.0031,
+    "propellant_volume": 0.0021,
     "propellant_pressure": 20e5,
     "propellant_temperature": 288,
     "propellant_state": "liquid"
@@ -143,7 +143,7 @@ athena_02_engine_properties = {
     "pressure_efficiency": 0.9,
     "exhaust_efficiency": 0.95,
     "pressure_rate": 0.5612,
-    "exhaust_area": 0.0065 ** 2 * math.pi / 4
+    "exhaust_area": 0.010 ** 2 * math.pi / 4
 }
 athena_02_engine = Engine("paintball", athena_02_engine_properties)
 
@@ -151,6 +151,8 @@ athena_02 = Rocket(athena_02_properties, [athena_02_main_tank, athena_02_paintba
 
 # Atmosphere:
 atmosphere = ISA_atmosphere()
+
+athena_02.engine.prepressurize(athena_02)
 
 #%% Simulation
 #-------------------------------
@@ -176,7 +178,7 @@ if logging:
 # start timer
 start = timer.time()
 
-while rocket.altitude >= 0 and time < 60:
+while (rocket.altitude >= 0 and time < 60) or time < 1:
     
     if solve_adaptive == True:
         #Currently broken

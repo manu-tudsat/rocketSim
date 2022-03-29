@@ -49,6 +49,7 @@ class Engine():
                     self.mass_flow = 0
                     self.thrust = 0
                     self.engine_on = False
+                    
             else:
                 self.exhaust_velocity = 0
                 self.flow_volume = 0
@@ -101,6 +102,21 @@ class Engine():
                     #     water.pressure = air.pressure
                     
                     # water.density = PropsSI("D","T",water.temperature,"P",water.pressure, water.name)
+                    
+    def prepressurize(self, rocket):
+        
+        if self.engine_type=="paintball":
+            water = rocket.propellants[0]
+            air = rocket.propellants[1]
+            
+            air_volume = water.tank_volume - water.volume()
+            air_density_water_tank = PropsSI("D", "T", air.temperature, "P", self.max_pressure, air.name)
+            air_mass_water_tank = air_density_water_tank * air_volume
+            
+            if air_mass_water_tank < air.mass:
+                air.mass -= air_mass_water_tank
+                air.density = air.mass / air.tank_volume
+                air.pressure = PropsSI("P", "T", air.temperature, "D", air.density, air.name)
                 
                 
             
